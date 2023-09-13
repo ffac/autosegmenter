@@ -1,7 +1,31 @@
+import re
+import unicodedata
+
 from requests import get
 
+# https://gist.github.com/berlotto/6295018
+_slugify_strip_re = re.compile(r"[^\w\s-]")
+_slugify_hyphenate_re = re.compile(r"[-\s]+")
 
-def extract_node_geo_info(node) -> tuple[tuple[float, float], str]:
+
+def slugify(value: str):
+    """
+    Normalizes string, converts to lowercase, removes non-alpha characters,
+    and converts spaces to hyphens.
+
+    From Django's "django/template/defaultfilters.py".
+    """
+    value = (
+        unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    )
+    value = _slugify_strip_re.sub("", value).strip().lower()
+    return _slugify_hyphenate_re.sub("-", value)
+
+
+def extract_node_geo_info(node: dict) -> tuple[tuple[float, float], str]:
+    """
+    extracts ((lat, lon), public_key) from the given node dict
+    """
     try:
         nodeinfo = node["nodeinfo"]
 
@@ -23,9 +47,7 @@ def extract_node_tunnel_info(node) -> tuple[tuple[float, float], str]:
         try:
             public_key: str = nodeinfo["software"]["wireguard"]["public_key"]
         except KeyError:
-            public_key = nodeinfo["hostname"].lower()
-        if nodeinfo["hostname"] == "ffac-seilpforte-841-F7BE":
-            print("hello", public_key, tunnel_macs)
+            public_key = slugify(nodeinfo["hostname"].replace(" ", ""))
 
         return [(tunnel_mac, public_key) for tunnel_mac in tunnel_macs]
     except KeyError:
@@ -59,6 +81,7 @@ def crawl_tunnel(nodes_url):
         node_infos = extract_node_tunnel_info(node)
         for node_info in node_infos:
             tunnel_mac, public_key = node_info
+            # tunnel_mac can also be the slugified node name
             tunnel_key_map[tunnel_mac] = public_key
 
     return tunnel_key_map

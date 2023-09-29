@@ -47,7 +47,7 @@ def extract_node_tunnel_info(node) -> tuple[tuple[float, float], str]:
         try:
             public_key: str = nodeinfo["software"]["wireguard"]["public_key"]
         except KeyError:
-            public_key = slugify(nodeinfo["hostname"].replace(" ", ""))
+            public_key = slugify(nodeinfo["hostname"])
 
         return [(tunnel_mac, public_key) for tunnel_mac in tunnel_macs]
     except KeyError:

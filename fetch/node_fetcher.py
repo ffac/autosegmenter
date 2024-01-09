@@ -50,12 +50,12 @@ def extract_node_tunnel_info(node) -> tuple[tuple[float, float], str]:
             # we try to guess the filename if we can not determine by public_key
             # needed for v2021.x - which does not reveal public_key in respondd
             # uci get system.@system[0].hostname is not pretty-hostname
-            public_key = public_key.replace("_","")
-            public_key = "".join(filter(str.isascii, public_key))
-            if not public_key:
+            hostname = nodeinfo["hostname"].replace("_","")
+            hostname = "".join(filter(str.isascii, hostname))
+            if not hostname:
                 # that's what pretty-hostname turns into a hostname for emoji-only..
-                public_key = "localhost"
-            public_key = slugify(nodeinfo["hostname"])
+                hostname = "localhost"
+            public_key = slugify(hostname)
 
         return [(tunnel_mac, public_key) for tunnel_mac in tunnel_macs]
     except KeyError:

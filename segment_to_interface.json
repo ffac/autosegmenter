@@ -1,7 +1,6 @@
 {
-    "fallback": "wg-20",
+    "fallback": "wg-11",
     "segments": {
-        "segment01": "wg-11",
         "segment02": "wg-12",
         "segment03": "wg-13",
         "segment04": "wg-14",

@@ -24,15 +24,15 @@ def main() -> None:
         public_key: get_interface_by_location(location)
         for public_key, location in public_key_to_location.items()
     }
-    gitter.pull()
+    #gitter.pull()
     try:
         committed = write_moves(public_key_to_interface, REPOSITORY)
-        if len(committed) > 0:
-            gitter.bulk_commit(committed, "update geosegmenter")
-            gitter.push()
+        #if len(committed) > 0:
+        #    gitter.bulk_commit(committed, "update geosegmenter")
+            #gitter.push()
     except Exception as e:
         logger.error(f"could not write - restoring {e}")
-        gitter.restore()
+        #gitter.restore()
 
 
 if __name__ == "__main__":

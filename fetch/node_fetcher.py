@@ -32,7 +32,15 @@ def extract_node_geo_info(node: dict) -> tuple[tuple[float, float], str]:
         location = nodeinfo["location"]
         lat_long: tuple[float, float] = (location["latitude"], location["longitude"])
 
-        public_key: str = nodeinfo["software"]["wireguard"]["public_key"]
+        # we try to guess the filename if we can not determine by public_key
+        # needed for v2021.x - which does not reveal public_key in respondd
+        # uci get system.@system[0].hostname is not pretty-hostname
+        hostname = nodeinfo["hostname"].replace("_","")
+        hostname = "".join(filter(str.isascii, hostname))
+        if not hostname:
+            # that's what pretty-hostname turns into a hostname for emoji-only..
+            hostname = "localhost"
+        public_key = slugify(hostname)
 
         return (lat_long, public_key)
     except KeyError:
@@ -68,6 +76,8 @@ def crawl_geo(nodes_url):
     key_location_map: dict[str, tuple[float, float]] = {}
 
     for node in nodes:
+        if node["nodeinfo"]["software"]["firmware"].get("release") != "v2021.1.2-15":
+            continue
         node_info = extract_node_geo_info(node)
 
         if not node_info:

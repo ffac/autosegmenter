@@ -20,8 +20,11 @@ def write_moves(public_key_to_interface: dict[str, str], repo: str) -> list[str]
                     to_create[os.path.join(repo, seg, filename)] = key
                     to_delete.append(cur_path)
                 # workaround for v2019 firmware - use nodename
-                if filename[:-5] in public_key_to_interface.keys():
-                    seg = public_key_to_interface[filename[:-5]]
+                # due to pretty-hostname, underscores are not allowed
+                # so we can be sure that there is only one underscore
+                possible_filename = filename.split("_")[0]
+                if possible_filename in public_key_to_interface.keys():
+                    seg = public_key_to_interface[possible_filename]
                     to_create[os.path.join(repo, seg, filename)] = key
                     to_delete.append(cur_path)
     # remove old key

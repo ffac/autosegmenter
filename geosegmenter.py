@@ -8,7 +8,7 @@ from utils.gitter import Gitter
 from utils.mover import write_moves
 
 CLONE_URL = os.getenv("CLONE_URL", "https://github.com/ffac/peers-wg")
-REPOSITORY: str = os.getenv("REPOSITORY", "/etc/wireguard/peers-wg")
+REPOSITORY: str = os.getenv("REPOSITORY", "../peers-wg")
 NODES_URL: str = os.getenv(
     "HTTP_NODE_URL", "https://map.aachen.freifunk.net/data/nodes.json"
 )

@@ -77,21 +77,31 @@ def main() -> None:
     gitter = Gitter(REPOSITORY)
     logger.info("watchdog started")
     while True:
-        tunnel_key_map = crawl_tunnel(NODES_URL)
-        gitter.pull()
-        moves = get_moves()
         try:
-            public_key_to_interface = {
-                tunnel_key_map[mac]: intf for mac, intf in moves.items()
-            }
-            committed = write_moves(public_key_to_interface, REPOSITORY)
-            if len(committed) > 0:
-                gitter.bulk_commit(committed, f"watchdog update {moves}")
-                gitter.push()
-        except Exception as e:
-            logger.error(f"could not write - restoring {e}")
-            gitter.restore()
-        time.sleep(60)
+            try:
+                tunnel_key_map = crawl_tunnel(NODES_URL)
+            except Exception as e:
+                logger.error(f"could not query {NODES_URL}: {e}")
+                continue
+            gitter.pull()
+            moves = get_moves()
+            print("moves", moves)
+            try:
+                public_key_to_interface = {
+                    tunnel_key_map[mac]: intf for mac, intf in moves.items()
+                }
+                print("pubkey_to_if", public_key_to_interface)
+                committed = write_moves(public_key_to_interface, REPOSITORY)
+                print("committed", committed)
+                if len(committed) > 0:
+                    gitter.bulk_commit(committed, f"watchdog update {moves}")
+                    gitter.push()
+            except Exception as e:
+                logger.error(f"could not write - restoring {e}")
+                gitter.restore()
+        finally:
+            # also executed on continue
+            time.sleep(60)
     logger.info("watchdog stopped")
 
 
